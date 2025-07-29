@@ -71,7 +71,7 @@ class TestUtils(unittest.TestCase):
             TextNode("a", TextType.BOLD),
             TextNode(" ", TextType.TEXT),
             TextNode("b", TextType.BOLD),
-            TextNode("", TextType.TEXT)
+            TextNode("", TextType.TEXT)  
         ])
 
     def test_split_nodes_delimiter_no_delimiter(self):
