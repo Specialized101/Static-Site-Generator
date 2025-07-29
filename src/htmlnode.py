@@ -10,6 +10,8 @@ class HTMLNode:
         raise NotImplementedError("Must be overriden by children classes")
 
     def props_to_html(self):
+        if not self.props:
+            return ""
         props = ""
         for k,v in self.props.items():
             props += f' {k}="{v}"'
