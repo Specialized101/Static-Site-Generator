@@ -1,6 +1,6 @@
 import re
 
-from textnode import TextNode, TextType
+from textnode import TextNode, TextType, BlockType
 
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
     new_nodes = []
@@ -96,4 +96,37 @@ def text_to_textnodes(text):
 
     return nodes
 
+def markdown_to_blocks(markdown):
+    # blocks = list(map(lambda s: s.strip(), markdown.split("\n\n")))
+    blocks = [block.strip() for block in markdown.split("\n\n") if block.strip() != ""]
+    return blocks
 
+def block_to_block_type(markdown):
+    if re.match(r"^#{1,6} .*?$", markdown):
+        return BlockType.HEADING
+    if markdown.startswith("```") and markdown.endswith("```"):
+        return BlockType.CODE
+    lines = markdown.split("\n")
+    is_quote = True
+    is_ul = True
+    is_ol = True
+    i = 1
+    for line in lines:
+        if not line.startswith(">"):
+            is_quote = False
+        if not line.startswith("- "):
+            is_ul = False
+        if not line.startswith(f"{i}. "):
+            is_ol = False
+            
+        i += 1
+        
+    if is_quote:
+        return BlockType.QUOTE
+    if is_ul:
+        return BlockType.UNORDERED_LIST
+    if is_ol:
+        return BlockType.ORDERED_LIST
+    
+    return BlockType.PARAGRAPH
+    

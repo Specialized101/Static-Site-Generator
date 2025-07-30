@@ -2,7 +2,7 @@
 import unittest
 
 from utils import *
-from textnode import TextNode, TextType
+from textnode import TextNode, TextType, BlockType
 
 class TestUtils(unittest.TestCase):
     def test_split_nodes_delimiter_code(self):
@@ -177,3 +177,93 @@ class TestUtils(unittest.TestCase):
             ], 
             new_nodes
         )
+    def test_markdown_to_blocks(self):
+        md = """
+This is **bolded** paragraph
+
+This is another paragraph with _italic_ text and `code` here
+This is the same paragraph on a new line
+
+- This is a list
+- with items
+        """
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "This is **bolded** paragraph",
+                "This is another paragraph with _italic_ text and `code` here\nThis is the same paragraph on a new line",
+                "- This is a list\n- with items",
+            ],
+        )
+    
+    def test_markdown_to_blocks_extra_blank_lines(self):
+        md = """
+This is **bolded** paragraph
+
+
+
+This is another paragraph with _italic_ text and `code` here
+This is the same paragraph on a new line
+
+
+
+- This is a list
+- with items
+
+
+        """
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "This is **bolded** paragraph",
+                "This is another paragraph with _italic_ text and `code` here\nThis is the same paragraph on a new line",
+                "- This is a list\n- with items",
+            ],
+        )
+    
+    def test_block_to_block_type_heading(self):
+        block_type1 = block_to_block_type("### This is a Heading 3")
+        block_type2 = block_to_block_type("###This is a Heading 3")
+        self.assertEqual(BlockType.HEADING, block_type1)
+        self.assertEqual(BlockType.PARAGRAPH, block_type2)
+    
+    def test_block_to_block_type_code(self):
+        block_type = block_to_block_type(
+"""\
+```
+    def main():{
+        print("Hello, world")
+    }
+```\
+"""
+        )
+        self.assertEqual(BlockType.CODE, block_type)
+
+    def test_block_to_block_type_paragraphs(self):
+        block_type = block_to_block_type(
+"""\
+This is some paragraph.
+This is another line in the same paragraph.\
+"""
+        )
+        self.assertEqual(BlockType.PARAGRAPH, block_type)
+
+    def test_block_to_block_type_ol(self):
+        block_type1 = block_to_block_type(
+"""\
+1. HTML
+2. CSS
+3. JS\
+"""
+        )
+        block_type2 = block_to_block_type(
+"""\
+1. HTML
+2. CSS
+4. JS\
+"""
+        )
+        self.assertEqual(BlockType.ORDERED_LIST, block_type1)
+        self.assertEqual(BlockType.PARAGRAPH, block_type2)
