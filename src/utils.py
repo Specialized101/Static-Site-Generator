@@ -1,6 +1,7 @@
 import re
 
-from textnode import TextNode, TextType, BlockType
+from textnode import *
+from htmlnode import HTMLNode
 
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
     new_nodes = []
@@ -130,3 +131,62 @@ def block_to_block_type(markdown):
     
     return BlockType.PARAGRAPH
     
+def markdown_to_html_node(markdown):
+    parent = HTMLNode("div", None, [])
+    blocks = markdown_to_blocks(markdown)
+    for block in blocks:
+        block_type = block_to_block_type(block)
+        match block_type:
+            case BlockType.HEADING:
+                parent.children.append(markdown_heading_to_html_heading(block))
+            case BlockType.QUOTE:
+                parent.children.append(markdown_quote_to_html_quote(block))
+            case BlockType.UNORDERED_LIST:
+                parent.children.append(markdown_ul_to_html_ul(block))
+            case BlockType.ORDERED_LIST:
+                parent.children.append(markdown_ol_to_html_ol(block))
+            case BlockType.CODE:
+                parent.children.append(markdown_code_to_html_code(block))
+            case _:
+                parent.children.append(markdown_p_to_html_p(block))
+
+    return parent
+
+def markdown_heading_to_html_heading(markdown):
+    splits = markdown.split(" ", 1)
+    hashtag_count = splits[0].count("#")
+    return HTMLNode(f"h{hashtag_count}", None, text_to_children(splits[1]))
+
+def markdown_quote_to_html_quote(markdown):
+    lines = markdown.split("\n")
+    text = "\n".join(list(map(lambda s: s[1:].strip(), lines)))
+    return HTMLNode("blockquote", None, text_to_children(text))
+
+def markdown_ul_to_html_ul(markdown):
+    lines = markdown.split("\n")
+    li_nodes = []
+    for line in lines:
+        li_nodes.append(HTMLNode("li", None, text_to_children(line[1:].strip())))
+    return HTMLNode("ul", None, li_nodes)
+
+def markdown_ol_to_html_ol(markdown):
+    lines = markdown.split("\n")
+    ol_nodes = []
+    for line in lines:
+        ol_nodes.append(HTMLNode("li", None, text_to_children(line.split(" ", 1)[1].strip())))
+    return HTMLNode("ol", None, ol_nodes)
+
+def markdown_code_to_html_code(markdown):
+    code_content = markdown[3:-3].strip()
+    code_node = HTMLNode("code", code_content)
+    return HTMLNode("pre", None, [code_node])
+
+def markdown_p_to_html_p(markdown):
+    return HTMLNode("p", None, text_to_children(markdown.strip()))
+
+def text_to_children(text):
+    textnodes = text_to_textnodes(text)
+    htmlnodes = []
+    for textnode in textnodes:
+        htmlnodes.append(text_node_to_html_node(textnode))
+    return htmlnodes

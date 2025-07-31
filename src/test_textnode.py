@@ -1,6 +1,6 @@
 import unittest
 
-from textnode import TextNode, TextType
+from textnode import *
 
 class TestTextNode(unittest.TestCase):
     def test_eq(self):
@@ -29,18 +29,18 @@ class TestTextNode(unittest.TestCase):
 
     def test_text_node_to_html_node_text(self):
         node = TextNode("This is a text node", TextType.TEXT)
-        html_node = TextNode.text_node_to_html_node(node)
+        html_node = text_node_to_html_node(node)
         self.assertEqual(html_node.tag, None)
         self.assertEqual(html_node.value, "This is a text node")
 
     def test_text_node_to_html_node_image(self):
         node = TextNode("This is blank image", TextType.IMAGE, "/home/speci/images/001.jpg")
-        html_node = TextNode.text_node_to_html_node(node)
+        html_node = text_node_to_html_node(node)
         self.assertEqual(html_node.to_html(), '<img src="/home/speci/images/001.jpg" alt="This is blank image"></img>')
 
     def test_text_node_to_html_node_link(self):
         node = TextNode("boot.dev", TextType.LINK, "https://www.boot.dev")
-        html_node = TextNode.text_node_to_html_node(node)
+        html_node = text_node_to_html_node(node)
         self.assertEqual(html_node.to_html(), '<a href="https://www.boot.dev">boot.dev</a>')
 
 if __name__ == "__main__":

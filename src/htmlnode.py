@@ -7,7 +7,18 @@ class HTMLNode:
         self.props = props
 
     def to_html(self):
-        raise NotImplementedError("Must be overriden by children classes")
+        html = ""
+        if self.tag:
+            html += f"<{self.tag}{self.props_to_html()}>"
+        if self.value:
+            html += self.value
+        if self.children:
+            for child in self.children:
+                html += child.to_html()
+        if self.tag:
+            html += f"</{self.tag}>"
+        return html
+
 
     def props_to_html(self):
         if not self.props:
