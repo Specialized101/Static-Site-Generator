@@ -299,3 +299,16 @@ the **same** even with inline stuff
             html,
             "<div><pre><code>This is text that _should_ remain\nthe **same** even with inline stuff</code></pre></div>",
         )
+
+    def test_extract_title(self):
+        md1 = "# Why HTML is harder than Rust"
+        md2 = " # Why HTML is harder than Rust"
+        title1 = extract_title(md1)
+        title2 = extract_title(md2)
+        self.assertEqual("Why HTML is harder than Rust", title1)
+        self.assertEqual("Why HTML is harder than Rust", title2)
+    
+    def test_extract_title_error(self):
+        with self.assertRaises(Exception):
+            md = "## Why HTML is harder than Rust"
+            title = extract_title(md)

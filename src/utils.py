@@ -190,3 +190,10 @@ def text_to_children(text):
     for textnode in textnodes:
         htmlnodes.append(text_node_to_html_node(textnode))
     return htmlnodes
+
+def extract_title(markdown):
+    lines = markdown.split("\n")
+    for line in lines:
+        if line.strip().startswith("# "):
+            return line.strip().replace("# ", "", 1).strip()
+    raise Exception("the markdown document is missing a h1 heading")
